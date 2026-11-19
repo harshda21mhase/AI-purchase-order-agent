@@ -1,1 +1,86 @@
+table 50707 "PO Agent Setup"
+{
+    DataClassification = ToBeClassified;
+    caption = ' Purchase Order Agent Setup';
 
+    fields
+    {
+        field(1; "Primary key"; code[10])
+        {
+            DataClassification = ToBeClassified;
+
+        }
+        field(2; "Agent Name"; text[100])
+        {
+            Dataclassification = tobeclassified;
+        }
+        field(3; Enabled; boolean)
+        {
+            Dataclassification = tobeclassified;
+        }
+        field(4; "AI provider"; Text[30])
+        {
+            Dataclassification = tobeclassified;
+            caption = 'AI provider';
+
+        }
+        field(5; "Model Name"; Text[50])
+        {
+            dataclassification = tobeclassified;
+            caption = 'Model Name';
+        }
+        field(6; "Polling Interval"; Integer)
+        {
+            dataclassification = tobeclassified;
+            Caption = 'Polling Interval (Minutes)';
+        }
+        field(7; "Require Approval"; Boolean)
+        {
+            Dataclassification = tobeclassified;
+            caption = 'Require Approval';
+        }
+        field(8; "Last Execution DateTime"; DateTime)
+        {
+            dataclassification = tobeclassified;
+            caption = 'Last Execution DateTime';
+            editable = false;
+        }
+
+    }
+
+
+
+
+    var
+        myInt: Integer;
+
+    trigger OnInsert()
+    begin
+        "Primary key" := 'Default';
+        "Agent Name" := 'My Custom Purchase Order Agent';
+        Enabled := false;
+        "AI Provider" := 'Ollama';
+        "Model Name" := 'llama3.2';
+        "Polling Interval" := 5;
+        "Require Approval" := true;
+    end;
+
+    trigger OnModify()
+    begin
+
+    end;
+
+    trigger OnDelete()
+    begin
+
+    end;
+
+    trigger OnRename()
+    begin
+
+    end;
+
+
+
+
+}
