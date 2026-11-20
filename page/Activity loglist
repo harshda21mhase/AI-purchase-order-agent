@@ -1,0 +1,71 @@
+page 50713 "PO Agent Activity LogList"
+{
+    PageType = List;
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    CardPageId = "PO Agent Activity Card page";
+    SourceTable = "PO Agent Activity Log";
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(GroupName)
+            {
+                field("Entry NO"; Rec."Entry NO")
+                {
+
+                }
+                field("Task ID"; Rec."Task ID")
+                {
+
+                }
+                field("Activity Type"; Rec."Activity Type")
+                {
+
+                }
+                field(Description; Rec.Description)
+                {
+
+                }
+                field("Activity DateTime"; Rec."Activity DateTime")
+                {
+
+                }
+                field("User ID"; Rec."User ID")
+                {
+
+                }
+                field(Status; Rec.Status)
+                {
+
+
+                }
+                field("Error message"; Rec."Error message")
+                {
+
+                }
+
+            }
+        }
+        area(Factboxes)
+        {
+
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(ActionName)
+            {
+
+                trigger OnAction()
+                begin
+
+                end;
+            }
+        }
+    }
+}
