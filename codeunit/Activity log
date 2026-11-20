@@ -1,0 +1,22 @@
+
+
+codeunit 50720 "PO Agent Activity Log"
+{
+    procedure LogActivity(
+        TaskID: Code[20];
+        ActivityType: Enum "ActivityTYPE";
+        ActivityDescription: Text[250];
+        ActivityStatus: Text[30])
+    var
+        ActivityLog: Record "PO Agent Activity Log";
+    begin
+        ActivityLog.Init();
+
+        ActivityLog."Task ID" := TaskID;
+        ActivityLog."Activity Type" := ActivityType;
+        ActivityLog.Description := ActivityDescription;
+        ActivityLog.Status := ActivityStatus;
+
+        ActivityLog.Insert(true);
+    end;
+}
