@@ -1,0 +1,90 @@
+table 50709 "PO Agent Activity Log"
+{
+    DataClassification = ToBeClassified;
+
+    fields
+    {
+        field(1; "Entry NO"; Integer)
+        {
+            DataClassification = ToBeClassified;
+            AutoIncrement = true;
+        }
+        field(2; "Task ID"; code[20])
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(3; "Activity Type"; Enum "ActivityTYPE")
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(4; "Description"; text[250])
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(5; "Activity DateTime"; DateTime)
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(6; "User ID"; Code[50])
+        {
+            dataclassification = tobeclassified;
+        }
+        field(7; "Status"; text[30])
+        {
+            Dataclassification = ToBeClassified;
+        }
+        field(8; "Error message"; text[250])
+        {
+            Dataclassification = ToBeClassified;
+        }
+
+    }
+
+    keys
+    {
+
+        key(PK; "Entry NO")
+        {
+            Clustered = true;
+        }
+
+        key(TaskKey; "Task ID")
+        {
+        }
+    }
+
+    fieldgroups
+    {
+        // Add changes to field groups here
+    }
+
+    var
+        myInt: Integer;
+
+    trigger OnInsert()
+    begin
+        if "Activity DateTime" = 0DT then
+            Rec."Activity DateTime" := CurrentDateTime;
+
+        if "User ID" = '' then
+            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+
+
+    end;
+
+    trigger OnModify()
+    begin
+
+    end;
+
+    trigger OnDelete()
+    begin
+
+    end;
+
+    trigger OnRename()
+    begin
+
+    end;
+
+}
