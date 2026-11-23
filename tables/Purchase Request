@@ -1,0 +1,240 @@
+namespace DefaultPublisher;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Foundation.UOM;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Purchases.Vendor;
+
+table 50706 "Purchase Request"
+{
+    Caption = 'Purchase Request';
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "Request No."; Code[20])
+        {
+            Caption = 'Request No.';
+            DataClassification = CustomerContent;
+        }
+
+        field(2; "Item No."; Code[20])
+        {
+            Caption = 'Item No.';
+            TableRelation = Item."No.";
+            DataClassification = CustomerContent;
+
+            trigger onvalidate()
+            var
+                RecItem: Record Item;
+
+            begin
+                if "Item No." = '' then begin
+                    "Item Description" := '';
+                    "Available Inventory" := 0;
+                    "Unit of Measure" := '';
+                    exit;
+                end;
+                if RecItem.Get("Item No.") then begin
+                    "Item Description" := RecItem.Description;
+                    "Available Inventory" := RecItem.Inventory;
+                    "Unit of Measure" := RecItem."Base Unit of Measure";
+
+                end
+
+            end;
+        }
+
+        field(3; "Item Description"; Text[100])
+        {
+            Caption = 'Item Description';
+            DataClassification = CustomerContent;
+        }
+
+        field(4; "Available Inventory"; Decimal)
+        {
+            Caption = 'Available Inventory';
+            DecimalPlaces = 0 : 5;
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                CalculatePurchaseQuantity();
+            end;
+        }
+
+        field(5; "Required Quantity"; Decimal)
+        {
+            Caption = 'Required Quantity';
+            DecimalPlaces = 0 : 5;
+            DataClassification = CustomerContent;
+
+
+            trigger OnValidate()
+            begin
+                CalculatePurchaseQuantity();
+            end;
+
+        }
+
+        field(6; "Purchase Quantity"; Decimal)
+        {
+            Caption = 'Purchase Quantity';
+            DecimalPlaces = 0 : 5;
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                CalculateEstimatedAmount();
+            end;
+        }
+
+        field(7; "Unit of Measure"; Code[10])
+        {
+            Caption = 'Unit of Measure';
+            TableRelation = "Unit of Measure".Code;
+            DataClassification = CustomerContent;
+        }
+
+
+        field(8; "Vendor No."; Code[20])
+        {
+            Caption = 'Vendor No.';
+            TableRelation = Vendor."No.";
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                VendorRec: Record Vendor;
+            begin
+                if "Vendor No." = '' then begin
+                    "Vendor Name" := '';
+                    "Unit Cost" := 0;
+                    "Estimated Amount" := 0;
+                    exit;
+                end;
+
+                if VendorRec.Get("Vendor No.") then
+                    "Vendor Name" := VendorRec.Name;
+            end;
+        }
+
+
+        field(9; "Vendor Name"; Text[100])
+        {
+            Caption = 'Vendor Name';
+            DataClassification = CustomerContent;
+        }
+
+        field(10; "Unit Cost"; Decimal)
+        {
+            Caption = 'Unit Cost';
+            DecimalPlaces = 0 : 5;
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                CalculateEstimatedAmount();
+            end;
+        }
+
+        field(11; "Estimated Amount"; Decimal)
+        {
+            Caption = 'Estimated Amount';
+            DecimalPlaces = 0 : 2;
+            DataClassification = CustomerContent;
+        }
+
+        field(12; "Expected Receipt Date"; Date)
+        {
+            Caption = 'Expected Receipt Date';
+            DataClassification = CustomerContent;
+        }
+
+        field(13; "Request Date"; Date)
+        {
+            Caption = 'Request Date';
+            DataClassification = CustomerContent;
+        }
+
+        field(14; Status; Enum "Purchase Request Status")
+        {
+            Caption = 'Status';
+            DataClassification = CustomerContent;
+        }
+
+        field(15; "Reason for Purchase"; Text[250])
+        {
+            Caption = 'Reason for Purchase';
+            DataClassification = CustomerContent;
+        }
+
+        field(16; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            TableRelation = "No. Series";
+            DataClassification = SystemMetadata;
+        }
+    }
+
+    keys
+    {
+        key(PK; "Request No.")
+        {
+            Clustered = true;
+        }
+
+        key(ItemKey; "Item No.")
+        {
+        }
+
+        key(StatusKey; Status)
+        {
+        }
+    }
+
+
+    trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+    begin
+        if "No. Series" = '' then
+            "No. Series" := 'PURCH-REQ';
+
+        if "Request No." = '' then
+            "Request No." := NoSeries.GetNextNo("No. Series", WorkDate());
+
+        if "Request Date" = 0D then
+            "Request Date" := WorkDate();
+
+        Status := Status::Open;
+    end;
+
+
+
+
+    local procedure TestNoSeries()
+    begin
+        if "No. Series" = '' then
+            Error('No Series is not defined. please select no series to generate request ni=umber');
+    end;
+
+
+
+    local procedure CalculatePurchaseQuantity()
+    begin
+        if "Required Quantity" > "Available Inventory" then
+            "Purchase Quantity" :=
+                "Required Quantity" - "Available Inventory"
+        else
+            "Purchase Quantity" := 0;
+
+        CalculateEstimatedAmount();
+    end;
+
+    local procedure CalculateEstimatedAmount()
+    begin
+        "Estimated Amount" := "Purchase Quantity" * "Unit Cost";
+    end;
+
+}
