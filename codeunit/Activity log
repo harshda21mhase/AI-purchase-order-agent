@@ -1,5 +1,4 @@
 
-
 codeunit 50720 "PO Agent Activity Log"
 {
     procedure LogActivity(
