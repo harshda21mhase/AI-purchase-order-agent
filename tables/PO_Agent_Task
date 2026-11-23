@@ -84,15 +84,51 @@ table 50708 "PO Agent Task"
     var
         myInt: Integer;
 
-    trigger OnInsert()
+   trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+        ActivityLogMgt: Codeunit "PO Agent Activity Log";
+
     begin
+        if "Task ID" = '' then begin
+            "No. Series" := 'POAGENT';
+            "Task ID" := NoSeries.GetNextNo("No. Series", WorkDate());
+        end;
+
+        if "created DateTime" = 0DT then
+            "created DateTime" := CurrentDateTime();
+
+        ActivityLogMgt.LogActivity(
+               "Task ID",
+               Enum::"ActivityTYPE"::TaskCreated,
+               'New PO Agent Task created',
+               Format(Status));
+
 
     end;
 
-    trigger OnModify()
-    begin
+   
+trigger OnModify()
+var
+    ActivityLogMgt: Codeunit "PO Agent Activity Log";
+begin
+    if xRec.Status <> Rec.Status then begin
+
+        ActivityLogMgt.LogActivity(
+            Rec."Task ID",
+            Enum::"ActivityTYPE"::AIAnalysis,
+            CopyStr(
+                'Task status changed from ' +
+                Format(xRec.Status) +
+                ' to ' +
+                Format(Rec.Status),
+                1,
+                250),
+            CopyStr(Format(Rec.Status), 1, 30));
 
     end;
+end;
+
 
     trigger OnDelete()
     begin
