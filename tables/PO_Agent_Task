@@ -108,26 +108,56 @@ table 50708 "PO Agent Task"
     end;
 
    
+
 trigger OnModify()
 var
     ActivityLogMgt: Codeunit "PO Agent Activity Log";
+    ActivityType: Enum "ActivityTYPE";
+    ActivityDescription: Text[250];
 begin
     if xRec.Status <> Rec.Status then begin
 
+        case Rec.Status of
+
+            Enum::"PO Agent Task Status"::PendingApproval:
+                begin
+                    ActivityType := Enum::"ActivityTYPE"::ApprovalRequested;
+                    ActivityDescription := 'Task sent for manager approval';
+                end;
+
+            Enum::"PO Agent Task Status"::Approved:
+                begin
+                    ActivityType := Enum::"ActivityTYPE"::Approved;
+                    ActivityDescription := 'Manager approved the purchase task';
+                end;
+
+            Enum::"PO Agent Task Status"::Rejected:
+                begin
+                    ActivityType := Enum::"ActivityTYPE"::Rejected;
+                    ActivityDescription := 'Manager rejected the purchase task';
+                end;
+
+            else begin
+                ActivityType := Enum::"ActivityTYPE"::AIAnalysis;
+                ActivityDescription :=
+                    CopyStr(
+                        'Task status changed from ' +
+                        Format(xRec.Status) +
+                        ' to ' +
+                        Format(Rec.Status),
+                        1,
+                        250);
+            end;
+        end;
+
         ActivityLogMgt.LogActivity(
             Rec."Task ID",
-            Enum::"ActivityTYPE"::AIAnalysis,
-            CopyStr(
-                'Task status changed from ' +
-                Format(xRec.Status) +
-                ' to ' +
-                Format(Rec.Status),
-                1,
-                250),
+            ActivityType,
+            ActivityDescription,
             CopyStr(Format(Rec.Status), 1, 30));
-
     end;
 end;
+
 
 
     trigger OnDelete()
