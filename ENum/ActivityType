@@ -1,0 +1,45 @@
+
+enum 50717 "ActivityTYPE"
+{
+    Extensible = true;
+
+    value(0; TaskCreated)
+    {
+        Caption = 'Task Created';
+    }
+
+    value(1; AIAnalysis)
+    {
+        Caption = 'AI Analysis';
+    }
+
+    value(2; RecommendationGenerated)
+    {
+        Caption = 'Recommendation Generated';
+    }
+
+    value(3; ApprovalRequested)
+    {
+        Caption = 'Approval Requested';
+    }
+
+    value(4; Approved)
+    {
+        Caption = 'Approved';
+    }
+
+    value(5; Rejected)
+    {
+        Caption = 'Rejected';
+    }
+
+    value(6; PurchaseOrderCreated)
+    {
+        Caption = 'Purchase Order Created';
+    }
+
+    value(7; Error)
+    {
+        Caption = 'Error';
+    }
+}
