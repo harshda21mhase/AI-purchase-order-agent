@@ -1,0 +1,121 @@
+table 50710 "PO Agent Request"
+{
+    DataClassification = ToBeClassified;
+
+    fields
+    {
+        field(1; "Request Entry No"; Integer)
+        {
+            DataClassification = ToBeClassified;
+            AutoIncrement = true;
+        }
+        field(2; "Source Type"; Enum "PO Agent Request Source")
+        {
+            DataClassification = ToBeClassified;
+
+        }
+        field(3; "Request Text"; Text[2048])
+        {
+            caption = 'Original Request';
+        }
+        field(4; "Sender Email"; text[250])
+        {
+            DataClassification = ToBeClassified;
+        }
+
+        field(5; "Email Subject"; Text[250])
+        {
+            DataClassification = ToBeClassified;
+        }
+
+        field(6; "External Message ID"; Text[250])
+        {
+            Caption = 'External Message ID';
+        }
+
+        field(7; "Received DateTime"; DateTime)
+        {
+            Caption = 'Received DateTime';
+        }
+
+        field(8; Status; Enum "PO Agent Request Status")
+        {
+            Caption = 'Status';
+        }
+
+        field(9; "AI Analysis Result"; Text[2048])
+        {
+            Caption = 'AI Analysis Result';
+        }
+
+        field(10; "Requester User ID"; Code[50])
+        {
+            Caption = 'Requester User ID';
+        }
+
+        field(11; "Attachment Received"; Boolean)
+        {
+            Caption = 'Attachment Received';
+        }
+
+        field(12; "Purchase Request No."; Code[20])
+        {
+            Caption = 'Purchase Request No.';
+        }
+
+        field(13; "Task ID"; Code[20])
+        {
+            Caption = 'Task ID';
+        }
+
+        field(14; "Last Error"; Text[250])
+        {
+
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Request Entry No")
+        {
+            Clustered = true;
+        }
+
+        key(ExternalMessage; "External Message ID")
+        {
+        }
+    }
+
+    fieldgroups
+    {
+        // Add changes to field groups here
+    }
+
+    var
+        myInt: Integer;
+
+    trigger OnInsert()
+    begin
+        if "Received DateTime" = 0DT then
+            "Received DateTime" := CurrentDateTime();
+
+        if "Requester User ID" = '' then
+            "Requester User ID" := CopyStr(UserId(), 1, MaxStrLen("Requester User ID"));
+    end;
+
+    trigger OnModify()
+    begin
+
+    end;
+
+    trigger OnDelete()
+    begin
+
+    end;
+
+    trigger OnRename()
+    begin
+
+    end;
+
+}
