@@ -1,0 +1,49 @@
+
+page 50715 "PO Agent Request FactBox"
+{
+    PageType = CardPart;
+    SourceTable = "PO Agent Request";
+    Caption = 'Request Overview';
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            group("Request Information")
+            {
+                Caption = 'Request Information';
+
+                field("Request Entry No."; Rec."Request Entry No")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+
+                field("Source Type"; Rec."Source Type")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+
+                field(Status; Rec.Status)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+
+                field("Attachment Received"; Rec."Attachment Received")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+
+                field("Requester User ID"; Rec."Requester User ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+            }
+        }
+    }
+}
