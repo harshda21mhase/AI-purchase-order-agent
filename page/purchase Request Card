@@ -1,0 +1,174 @@
+
+page 50709 "Purchase Request Card"
+{
+    Caption = 'Purchase Request Card';
+    PageType = Card;
+    ApplicationArea = All;
+    SourceTable = "Purchase Request";
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                Caption = 'General';
+
+                field("Request No."; Rec."Request No.")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Request Date"; Rec."Request Date")
+                {
+                    ApplicationArea = All;
+                }
+
+                field(Status; Rec.Status)
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Reason for Purchase"; Rec."Reason for Purchase")
+                {
+                    ApplicationArea = All;
+                    MultiLine = true;
+                }
+            }
+
+            group(ItemDetails)
+            {
+                Caption = 'Item Details';
+
+                field("Item No."; Rec."Item No.")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Item Description"; Rec."Item Description")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Available Inventory"; Rec."Available Inventory")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Required Quantity"; Rec."Required Quantity")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Purchase Quantity"; Rec."Purchase Quantity")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Unit of Measure"; Rec."Unit of Measure")
+                {
+                    ApplicationArea = All;
+                }
+            }
+
+            group(VendorDetails)
+            {
+                Caption = 'Vendor Details';
+
+                field("Vendor No."; Rec."Vendor No.")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Vendor Name"; Rec."Vendor Name")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Unit Cost"; Rec."Unit Cost")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Estimated Amount"; Rec."Estimated Amount")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
+                {
+                    ApplicationArea = All;
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(SubmitToAIAgent)
+            {
+                Caption = 'Submit to AI Agent';
+                ApplicationArea = All;
+                Image = SendTo;
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    AgentRequest: Record "PO Agent Request";
+                    RequestText: Text[2048];
+                begin
+                    AgentRequest.SetRange(
+                        "Purchase Request No.",
+                        Rec."Request No.");
+
+                    if AgentRequest.FindFirst() then
+                        Error(
+                            'Purchase Request %1 has already been submitted to the AI Agent.',
+                            Rec."Request No.");
+
+                    RequestText :=
+                        CopyStr(
+                            'Purchase Request No.: ' + Rec."Request No." +
+                            '; Item No.: ' + Rec."Item No." +
+                            '; Item Description: ' + Rec."Item Description" +
+                            '; Required Quantity: ' + Format(Rec."Required Quantity") +
+                            '; Available Inventory: ' + Format(Rec."Available Inventory") +
+                            '; Purchase Quantity: ' + Format(Rec."Purchase Quantity") +
+                            '; Unit of Measure: ' + Rec."Unit of Measure" +
+                            '; Vendor No.: ' + Rec."Vendor No." +
+                            '; Vendor Name: ' + Rec."Vendor Name" +
+                            '; Unit Cost: ' + Format(Rec."Unit Cost") +
+                            '; Estimated Amount: ' + Format(Rec."Estimated Amount") +
+                            '; Expected Receipt Date: ' + Format(Rec."Expected Receipt Date") +
+                            '; Reason for Purchase: ' + Rec."Reason for Purchase",
+                            1,
+                            MaxStrLen(RequestText));
+
+                    AgentRequest.Init();
+
+                    AgentRequest."Source Type" :=
+                        AgentRequest."Source Type"::BusinessCentral;
+
+                    AgentRequest."Request Text" := RequestText;
+                    AgentRequest.Status :=
+                        AgentRequest.Status::New;
+
+                    AgentRequest."Purchase Request No." :=
+                        Rec."Request No.";
+
+                    AgentRequest."Attachment Received" := false;
+
+                    AgentRequest.Insert(true);
+
+                    Message(
+                        'Purchase Request %1 successfully submitted to AI Agent. AI Request Entry No.: %2',
+                        Rec."Request No.",
+                        AgentRequest."Request Entry No");
+                end;
+            }
+        }
+    }
+}
