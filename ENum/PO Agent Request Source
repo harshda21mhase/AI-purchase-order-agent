@@ -1,0 +1,14 @@
+enum 50709 "PO Agent Request Source"
+{
+    Extensible = true;
+
+    value(0; BusinessCentral)
+    {
+        Caption = 'Business Central';
+    }
+
+    value(1; Outlook)
+    {
+        Caption = 'Outlook';
+    }
+}
