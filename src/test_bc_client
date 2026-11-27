@@ -1,0 +1,113 @@
+
+import requests
+from bc_client import get_access_token
+
+# ==========================================
+# BUSINESS CENTRAL CONFIGURATION
+# ==========================================
+
+TENANT_ID = "e4a694b4-8eec-42b1-bdef-045cc2fb98c2"
+ENVIRONMENT = "Harshda"
+COMPANY_NAME = "CRONUS IN"
+
+# ==========================================
+# GET EXISTING OAUTH ACCESS TOKEN
+# ==========================================
+
+print("Connecting to Business Central...")
+
+access_token = get_access_token()
+
+headers = {
+    "Authorization": f"Bearer {access_token}",
+    "Accept": "application/json"
+}
+
+base_url = (
+    f"https://api.businesscentral.dynamics.com/v2.0/"
+    f"{TENANT_ID}/{ENVIRONMENT}"
+)
+
+# ==========================================
+# STEP 1: GET COMPANY ID
+# ==========================================
+
+companies_url = f"{base_url}/api/v2.0/companies"
+
+response = requests.get(
+    companies_url,
+    headers=headers,
+    timeout=60
+)
+print("Companies API Status:", response.status_code)
+
+print("\nBusiness Central Error Details:")
+print(response.text)
+
+if response.status_code != 200:
+    exit()
+
+companies = response.json().get("value", [])
+
+company = next(
+    (item for item in companies
+     if item.get("name") == COMPANY_NAME),
+    None
+)
+
+if company is None:
+    raise Exception(
+        f"Company '{COMPANY_NAME}' was not found."
+    )
+
+company_id = company["id"]
+
+print("Company:", company["name"])
+print("Company ID:", company_id)
+
+# ==========================================
+# STEP 2: CALL CUSTOM PO AGENT API
+# ==========================================
+
+custom_api_url = (
+    f"{base_url}/api/defaultPublisher/purchaseAgent/"
+    f"v1.0/companies({company_id})/poAgentRequests"
+)
+
+print("\nCalling PO Agent Request API...")
+
+response = requests.get(
+    custom_api_url,
+    headers=headers,
+    timeout=60
+)
+
+print("Custom API Status:", response.status_code)
+
+response.raise_for_status()
+
+data = response.json()
+
+# ==========================================
+# STEP 3: DISPLAY REQUEST RECORDS
+# ==========================================
+
+records = data.get("value", [])
+
+print("\nCUSTOM API CONNECTION SUCCESSFUL")
+print("Total PO Agent Requests:", len(records))
+
+for record in records:
+    print("--------------------------------")
+    print("Request Entry No:",
+          record.get("requestEntryNo"))
+    print("Source Type:",
+          record.get("sourceType"))
+    print("Status:",
+          record.get("status"))
+    print("Purchase Request No:",
+          record.get("purchaseRequestNo"))
+    print("Request Text:",
+          record.get("requestText"))
+
+print("\nAPI TEST COMPLETED")
